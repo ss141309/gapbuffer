@@ -72,11 +72,11 @@ static bool expandGap(GapBuffer **buffer, size str_len) {
     new_buffer->gap_len = 2 * str_len;
 
     *buffer = new_buffer;
-    return true;
   } else {
     return_value_if(new_buffer == NULL, false, ERR_OUT_OF_MEMORY);
-    return false; // To suppress -Wreturn-type warning
   }
+
+  return true;
 }
 
 static void shiftGapToPosition(GapBuffer *buffer, usize position) {
