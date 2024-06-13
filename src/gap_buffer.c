@@ -29,7 +29,7 @@ static void shiftGapToPosition(GapBuffer *buffer, usize position);
 bool GapBuffer_new(GapBuffer **buffer, size req_size) {
   *buffer = malloc(sizeof(GapBuffer) + req_size * sizeof(u8));
 
-  goto_handler_if(*buffer == NULL, INIT_FAILED, ERR_OUT_OF_MEMORY);
+  return_value_if(*buffer == NULL, false, ERR_OUT_OF_MEMORY);
 
   (*buffer)->gap_start = 0;
   (*buffer)->buffer_size = req_size;
@@ -37,10 +37,6 @@ bool GapBuffer_new(GapBuffer **buffer, size req_size) {
   (*buffer)->old_gap_len = req_size;
 
   return true;
-
-INIT_FAILED:
-  free(*buffer);
-  return false;
 }
 
 void GapBuffer_free(GapBuffer *buffer) {
@@ -70,18 +66,17 @@ static bool expandGap(GapBuffer **buffer, size str_len) {
   const usize req_size = (orig_buffer->buffer_size - orig_buffer->gap_len) + (2 * str_len);
   GapBuffer *new_buffer = realloc(*buffer, sizeof(GapBuffer) + req_size * sizeof(u8));
 
-  goto_handler_if(new_buffer == NULL, REALLOC_FAILED, ERR_OUT_OF_MEMORY);
+  if (new_buffer) {
+    new_buffer->buffer_size = req_size;
+    new_buffer->old_gap_len = new_buffer->gap_len;
+    new_buffer->gap_len = 2 * str_len;
 
-  new_buffer->buffer_size = req_size;
-  new_buffer->old_gap_len = new_buffer->gap_len;
-  new_buffer->gap_len = 2 * str_len;
-
-  *buffer = new_buffer;
-  return true;
-
-REALLOC_FAILED:
-  free(*buffer);
-  return false;
+    *buffer = new_buffer;
+    return true;
+  } else {
+    return_value_if(new_buffer == NULL, false, ERR_OUT_OF_MEMORY);
+    return false; // To suppress -Wreturn-type warning
+  }
 }
 
 static void shiftGapToPosition(GapBuffer *buffer, usize position) {

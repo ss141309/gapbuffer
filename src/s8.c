@@ -24,15 +24,11 @@ s8 s8cat(const s8 str1, const s8 str2) {
   result.len = str1.len + str2.len;
   result.data = malloc(result.len * sizeof(u8));
 
-  goto_handler_if(result.data == NULL, CONCAT_FAILED, ERR_OUT_OF_MEMORY);
+  return_value_if(result.data == NULL, result, ERR_OUT_OF_MEMORY);
 
   memcpy(result.data, str1.data, str1.len);
   memcpy(result.data + str1.len, str2.data, str2.len);
 
-  return result;
-
-CONCAT_FAILED:
-  free(result.data);
   return result;
 }
 
