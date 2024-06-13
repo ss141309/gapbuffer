@@ -5,12 +5,18 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "include/s8.h"
 #include "include/utils.h"
+
+static s8 getDataBeforeGap(GapBuffer *buffer);
+static s8 getDataAfterGap(GapBuffer *buffer);
+static bool expandGap(GapBuffer **buffer, size str_len);
+static void shiftGapToPosition(GapBuffer *buffer, usize position);
 
 bool GapBuffer_new(GapBuffer **buffer, size req_size) {
   *buffer = malloc(sizeof(GapBuffer) + req_size * sizeof(u8));
 
-  GOTO_HANDLER_IF(*buffer == NULL, INIT_FAILED, ERR_OUT_OF_MEMORY);
+  goto_handler_if(*buffer == NULL, INIT_FAILED, ERR_OUT_OF_MEMORY);
 
   (*buffer)->gap_start = 0;
   (*buffer)->buffer_size = req_size;
@@ -24,19 +30,18 @@ INIT_FAILED:
   return false;
 }
 
-void GapBuffer_free(GapBuffer *buffer) { if (buffer) free(buffer); }
+void GapBuffer_free(GapBuffer *buffer) {
+  if (buffer) free(buffer);
+}
 
-bool GapBuffer_insert(GapBuffer **buffer, const s8 string, size position) {
-  RETURN_VALUE_IF(expandGap(buffer, string.len) == false, false,
-                  ERR_OUT_OF_MEMORY);
+bool GapBuffer_insert(GapBuffer **buffer, const s8 string, usize position) {
+  return_value_if(expandGap(buffer, string.len) == false, false, ERR_OUT_OF_MEMORY);
 
   shiftGapToPosition(*buffer, position);
   memcpy((*buffer)->data + (*buffer)->gap_start, string.data, string.len);
 
   (*buffer)->gap_start += string.len;
   (*buffer)->gap_len -= string.len;
-
-  printChar(*buffer);
 
   return true;
 }
@@ -49,12 +54,10 @@ static bool expandGap(GapBuffer **buffer, size str_len) {
     return true;
   }
 
-  const usize req_size =
-      (orig_buffer->buffer_size - orig_buffer->gap_len) + (2 * str_len);
-  GapBuffer *new_buffer =
-      realloc(*buffer, sizeof(GapBuffer) + req_size * sizeof(u8));
+  const usize req_size = (orig_buffer->buffer_size - orig_buffer->gap_len) + (2 * str_len);
+  GapBuffer *new_buffer = realloc(*buffer, sizeof(GapBuffer) + req_size * sizeof(u8));
 
-  GOTO_HANDLER_IF(new_buffer == NULL, REALLOC_FAILED, ERR_OUT_OF_MEMORY);
+  goto_handler_if(new_buffer == NULL, REALLOC_FAILED, ERR_OUT_OF_MEMORY);
 
   new_buffer->buffer_size = req_size;
   new_buffer->old_gap_len = new_buffer->gap_len;
@@ -68,14 +71,13 @@ REALLOC_FAILED:
   return false;
 }
 
-static void shiftGapToPosition(GapBuffer *buffer, size position) {
+static void shiftGapToPosition(GapBuffer *buffer, usize position) {
   if (position == buffer->gap_start) {
     return;
   } else if (position < buffer->gap_start) {
     const size num = (buffer->gap_start - position) * sizeof(u8);
 
-    memmove(buffer->data + buffer->gap_start + buffer->gap_len - num,
-            buffer->data + position, num);
+    memmove(buffer->data + buffer->gap_start + buffer->gap_len - num, buffer->data + position, num);
   } else {
     const size num = (position - buffer->gap_start) * sizeof(u8);
 
@@ -86,39 +88,41 @@ static void shiftGapToPosition(GapBuffer *buffer, size position) {
   buffer->gap_start = position;
 }
 
-static void printChar(GapBuffer *buffer) {
-  for (size i = 0; i < buffer->gap_start; i++) {
-    printf("%c", buffer->data[i]);
-  }
+bool GapBuffer_delete(GapBuffer *buffer, usize position, size bytes) {
+  const size total_bytes = (buffer->buffer_size - buffer->gap_len) - position;
+  return_value_if(total_bytes < bytes, false, ERR_INVALID_SIZE);
 
-  for (size i = 0; i < buffer->gap_len; i++) {
-    printf("_");
-  }
+  shiftGapToPosition(buffer, position);
+  buffer->gap_len += bytes;
 
-  for (size i = buffer->gap_start + buffer->gap_len; i < buffer->buffer_size; i++) {
-    printf("%c", buffer->data[i]);
-  }
-
-  printf("\n");
+  return true;
 }
 
-int main(void) {
-  const s8 str = s8("hello");
-  const s8 str2 = s8("world");
-  const s8 str3 = s8(" my ");
-  const s8 str4 = s8(" signing off");
+bool GapBuffer_replace(GapBuffer **buffer, const s8 string, usize position) {
+  return_value_if(GapBuffer_delete(*buffer, position, string.len) == false, false,
+                  ERR_INVALID_SIZE);
+  return_value_if(GapBuffer_insert(buffer, string, position) == false, false, ERR_OUT_OF_MEMORY);
+  return true;
+}
 
-  GapBuffer *buff = {0};
+s8 GapBuffer_getBufferData(GapBuffer *buffer) {
+  const s8 before_data = getDataBeforeGap(buffer);
+  const s8 after_data = getDataAfterGap(buffer);
 
-  ABORT_IF(GapBuffer_new(&buff, 1) == false, ERR_OUT_OF_MEMORY);
+  s8 concat_str = s8cat(before_data, after_data);
+  return_value_if(concat_str.data == NULL, concat_str, ERR_OBJECT_INITIALIZATION_FAILED);
 
-  ABORT_IF(GapBuffer_insert(&buff, str, 0) == false, ERR_OUT_OF_MEMORY);
-  ABORT_IF(GapBuffer_insert(&buff, str2, str.len) == false, ERR_OUT_OF_MEMORY);
-  ABORT_IF(GapBuffer_insert(&buff, str3, str.len) == false, ERR_OUT_OF_MEMORY);
-  ABORT_IF(
-      GapBuffer_insert(&buff, str4, str.len + str2.len + str3.len) == false,
-      ERR_OUT_OF_MEMORY);
+  return concat_str;
+}
 
-  GapBuffer_free(buff);
-  return 0;
+static s8 getDataBeforeGap(GapBuffer *buffer) {
+  const s8 before_str = {.data = buffer->data, .len = buffer->gap_start};
+
+  return before_str;
+}
+static s8 getDataAfterGap(GapBuffer *buffer) {
+  const usize first_byte_after_gap = buffer->gap_start + buffer->gap_len;
+  const s8 after_str = {.data = buffer->data + first_byte_after_gap,
+                        .len = buffer->buffer_size - first_byte_after_gap};
+  return after_str;
 }

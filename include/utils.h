@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+/* ------------------------TYPES------------------------ */
 #define countof(a) (size)(sizeof(a) / sizeof(*(a)))
 #define lengthof(s) (countof(s) - 1)
 
@@ -19,17 +20,12 @@ typedef char byte;
 typedef ptrdiff_t size;
 typedef size_t usize;
 
-#define s8(s) \
-  (s8) { (u8 *)s, lengthof(s) }
-
-typedef struct {
-  u8 *data;
-  size len;
-} s8;
-
+/* ------------------------ERROR HANDLING------------------------ */
 #define ERR_OUT_OF_MEMORY "Out of memory (allocation failed)\n"
+#define ERR_OBJECT_INITIALIZATION_FAILED "Failed to initialze object\n"
+#define ERR_INVALID_SIZE "Invalid size of bytes provided (bytes > buffer size)\n"
 
-#define RETURN_VALUE_IF(cond, value, ...) \
+#define return_value_if(cond, value, ...) \
   do {                                    \
     if ((cond)) {                         \
       fputs(__func__, stderr);            \
@@ -39,7 +35,7 @@ typedef struct {
     }                                     \
   } while (0)
 
-#define GOTO_HANDLER_IF(cond, handler, ...) \
+#define goto_handler_if(cond, handler, ...) \
   do {                                      \
     if ((cond)) {                           \
       fputs(__func__, stderr);              \
@@ -49,7 +45,7 @@ typedef struct {
     }                                       \
   } while (0)
 
-#define ABORT_IF(cond, ...)         \
+#define abort_if(cond, ...)         \
   do {                              \
     if ((cond)) {                   \
       fputs(__func__, stderr);      \
