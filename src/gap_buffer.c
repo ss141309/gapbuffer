@@ -1,12 +1,12 @@
-#include "include/gap_buffer.h"
+#include "../include/gap_buffer.h"
 
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "include/s8.h"
-#include "include/utils.h"
+#include "../include/s8.h"
+#include "../include/utils.h"
 
 static s8 getDataBeforeGap(GapBuffer *buffer);
 static s8 getDataAfterGap(GapBuffer *buffer);
@@ -116,13 +116,21 @@ s8 GapBuffer_getBufferData(GapBuffer *buffer) {
 }
 
 static s8 getDataBeforeGap(GapBuffer *buffer) {
-  const s8 before_str = {.data = buffer->data, .len = buffer->gap_start};
+  const s8 before_str = {
+    .data = buffer->data,
+    .len = buffer->gap_start
+  };
 
   return before_str;
 }
+
 static s8 getDataAfterGap(GapBuffer *buffer) {
   const usize first_byte_after_gap = buffer->gap_start + buffer->gap_len;
-  const s8 after_str = {.data = buffer->data + first_byte_after_gap,
-                        .len = buffer->buffer_size - first_byte_after_gap};
+
+  const s8 after_str = {
+    .data = buffer->data + first_byte_after_gap,
+    .len = buffer->buffer_size - first_byte_after_gap
+  };
+
   return after_str;
 }

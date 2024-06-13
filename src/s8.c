@@ -1,10 +1,10 @@
-#include "include/s8.h"
+#include "../include/s8.h"
 
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "include/utils.h"
+#include "../include/utils.h"
 
 s8 s8cat(const s8 str1, const s8 str2) {
   s8 result = {0};
