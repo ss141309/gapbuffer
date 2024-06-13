@@ -1,10 +1,15 @@
 /* This file is part of gapbuffer.
 
-gapbuffer is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+gapbuffer is free software: you can redistribute it and/or modify it under the terms of the GNU
+General Public License as published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-gapbuffer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+gapbuffer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+Public License for more details.
 
-You should have received a copy of the GNU General Public License along with gapbuffer. If not, see <https://www.gnu.org/licenses/>. */
+You should have received a copy of the GNU General Public License along with gapbuffer. If not, see
+<https://www.gnu.org/licenses/>. */
 
 #include "../include/gap_buffer.h"
 
@@ -124,10 +129,7 @@ s8 GapBuffer_getBufferData(GapBuffer *buffer) {
 }
 
 static s8 getDataBeforeGap(GapBuffer *buffer) {
-  const s8 before_str = {
-    .data = buffer->data,
-    .len = buffer->gap_start
-  };
+  const s8 before_str = {.data = buffer->data, .len = buffer->gap_start};
 
   return before_str;
 }
@@ -135,10 +137,8 @@ static s8 getDataBeforeGap(GapBuffer *buffer) {
 static s8 getDataAfterGap(GapBuffer *buffer) {
   const usize first_byte_after_gap = buffer->gap_start + buffer->gap_len;
 
-  const s8 after_str = {
-    .data = buffer->data + first_byte_after_gap,
-    .len = buffer->buffer_size - first_byte_after_gap
-  };
+  const s8 after_str = {.data = buffer->data + first_byte_after_gap,
+                        .len = buffer->buffer_size - first_byte_after_gap};
 
   return after_str;
 }

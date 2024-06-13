@@ -1,15 +1,20 @@
 /* This file is part of gapbuffer.
 
-gapbuffer is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+gapbuffer is free software: you can redistribute it and/or modify it under the terms of the GNU
+General Public License as published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-gapbuffer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+gapbuffer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+Public License for more details.
 
-You should have received a copy of the GNU General Public License along with gapbuffer. If not, see <https://www.gnu.org/licenses/>. */
+You should have received a copy of the GNU General Public License along with gapbuffer. If not, see
+<https://www.gnu.org/licenses/>. */
+
+#include <assert.h>
+#include <stdio.h>
 
 #include "../include/gap_buffer.h"
-
-#include <stdio.h>
-#include <assert.h>
 
 int main(void) {
   const s8 str1 = s8("hello");
@@ -31,7 +36,8 @@ int main(void) {
   free(buffer_data.data);
 
   GapBuffer_insert(&buffer, str3, str1.len);
-  buffer_data = GapBuffer_getBufferData(buffer);  assert(s8cmp(buffer_data, s8("hello my world")));
+  buffer_data = GapBuffer_getBufferData(buffer);
+  assert(s8cmp(buffer_data, s8("hello my world")));
   free(buffer_data.data);
 
   GapBuffer_insert(&buffer, str4, str1.len + str2.len + str3.len);
