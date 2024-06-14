@@ -9,7 +9,7 @@
 .POSIX:
 .SUFFIXES:
 CC = cc
-CFLAGS = -std=c23 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -g
+CFLAGS = -Wall -Wextra -Wpedantic -fsanitize=address,undefined -g
 LDFLAGS = -fsanitize=address,undefined
 
 all: gapbuffer

@@ -38,6 +38,7 @@ typedef size_t usize;
 #define ERR_OBJECT_INITIALIZATION_FAILED "Failed to initialze object\n"
 #define ERR_INVALID_SIZE "Invalid size of bytes provided (bytes > buffer size)\n"
 #define ERR_STR_CMP_FAILED "Strings provided are unequal\n"
+#define ERR_ARITHEMATIC_OVERFLOW "An arithematic operation caused an overflow (result > MAX)\n"
 
 #define return_value_if(cond, value, ...) \
   do {                                    \

@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License along with gap
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "../include/s8.h"
 #include "../include/utils.h"
@@ -27,6 +28,9 @@ static bool expandGap(GapBuffer **buffer, size str_len);
 static void shiftGapToPosition(GapBuffer *buffer, usize position);
 
 bool GapBuffer_new(GapBuffer **buffer, size req_size) {
+  const size max_size = (PTRDIFF_MAX - sizeof(GapBuffer))/sizeof(u8);
+  return_value_if(req_size > max_size, false, ERR_ARITHEMATIC_OVERFLOW);
+
   *buffer = malloc(sizeof(GapBuffer) + req_size * sizeof(u8));
 
   return_value_if(*buffer == NULL, false, ERR_OUT_OF_MEMORY);
@@ -63,7 +67,16 @@ static bool expandGap(GapBuffer **buffer, size str_len) {
     return true;
   }
 
-  const usize req_size = (orig_buffer->buffer_size - orig_buffer->gap_len) + (2 * str_len);
+  return_value_if(str_len > PTRDIFF_MAX / 2, false, ERR_ARITHEMATIC_OVERFLOW);
+  return_value_if(orig_buffer->buffer_size < 0 || orig_buffer->gap_len < 0, false,
+                  ERR_ARITHEMATIC_OVERFLOW);
+  return_value_if(orig_buffer->buffer_size - orig_buffer->gap_len > PTRDIFF_MAX / (2 * str_len),
+                  false, ERR_ARITHEMATIC_OVERFLOW);
+
+  const size req_size = (orig_buffer->buffer_size - orig_buffer->gap_len) + (2 * str_len);
+
+  const size max_size = (PTRDIFF_MAX - sizeof(GapBuffer))/sizeof(u8);
+  return_value_if(req_size > max_size, false, ERR_ARITHEMATIC_OVERFLOW);
   GapBuffer *new_buffer = realloc(*buffer, sizeof(GapBuffer) + req_size * sizeof(u8));
 
   if (new_buffer) {
