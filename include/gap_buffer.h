@@ -18,14 +18,7 @@ You should have received a copy of the GNU General Public License along with gap
 #include "s8.h"
 #include "utils.h"
 
-typedef struct {
-  size buffer_size;
-  usize gap_start;
-  size gap_len;
-  size old_gap_len;
-
-  u8 data[];
-} GapBuffer;
+typedef struct GapBuffer GapBuffer;
 
 bool GapBuffer_new(GapBuffer **buffer, size req_size);
 void GapBuffer_free(GapBuffer *buffer);

@@ -27,8 +27,17 @@ static s8 getDataAfterGap(GapBuffer *buffer);
 static bool expandGap(GapBuffer **buffer, size str_len);
 static void shiftGapToPosition(GapBuffer *buffer, usize position);
 
+struct GapBuffer {
+  size buffer_size;
+  usize gap_start;
+  size gap_len;
+  size old_gap_len;
+
+  u8 data[];
+};
+
 bool GapBuffer_new(GapBuffer **buffer, size req_size) {
-  const size max_size = (PTRDIFF_MAX - sizeof(GapBuffer))/sizeof(u8);
+  const size max_size = (PTRDIFF_MAX - sizeof(GapBuffer)) / sizeof(u8);
   return_value_if(req_size > max_size, false, ERR_ARITHEMATIC_OVERFLOW);
 
   *buffer = malloc(sizeof(GapBuffer) + req_size * sizeof(u8));
@@ -75,7 +84,7 @@ static bool expandGap(GapBuffer **buffer, size str_len) {
 
   const size req_size = (orig_buffer->buffer_size - orig_buffer->gap_len) + (2 * str_len);
 
-  const size max_size = (PTRDIFF_MAX - sizeof(GapBuffer))/sizeof(u8);
+  const size max_size = (PTRDIFF_MAX - sizeof(GapBuffer)) / sizeof(u8);
   return_value_if(req_size > max_size, false, ERR_ARITHEMATIC_OVERFLOW);
   GapBuffer *new_buffer = realloc(*buffer, sizeof(GapBuffer) + req_size * sizeof(u8));
 
