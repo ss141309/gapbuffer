@@ -1,0 +1,1 @@
+to read more about gap buffers: [[https://ss141309.github.io/posts/2024/june/writing-a-gap-buffer-implementation-in-c.html][writing a gapbuffer implementation in C]]
